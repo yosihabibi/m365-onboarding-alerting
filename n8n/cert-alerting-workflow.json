@@ -1,0 +1,66 @@
+{
+  "name": "Zertifikats-Alarm",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "cert-alert",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "c8988b5d-26af-4ae3-baf8-5f787bbfabf6",
+      "name": "Webhook",
+      "webhookId": "1e7d4dc4-b4c8-40e5-82ae-fd7451d1aefd"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "<PASTE-YOUR-TEAMS-WORKFLOW-WEBHOOK-URL>",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"type\": \"message\",\n  \"attachments\": [\n    {\n      \"contentType\": \"application/vnd.microsoft.card.adaptive\",\n      \"content\": {\n        \"$schema\": \"http://adaptivecards.io/schemas/adaptive-card.json\",\n        \"type\": \"AdaptiveCard\",\n        \"version\": \"1.4\",\n        \"body\": [\n          { \"type\": \"TextBlock\", \"size\": \"Large\", \"weight\": \"Bolder\", \"color\": \"Attention\", \"text\": \"⚠️ Zertifikat/Secret läuft bald ab\" },\n          { \"type\": \"TextBlock\", \"wrap\": true, \"text\": \"{{ $json.body.count }} Eintrag/Einträge gefunden (Quelle: {{ $json.body.source }}).\" },\n          { \"type\": \"FactSet\", \"facts\": [\n            { \"title\": \"App\", \"value\": \"{{ $json.body.items[0].App }}\" },\n            { \"title\": \"Typ\", \"value\": \"{{ $json.body.items[0].Credential }}\" },\n            { \"title\": \"Name\", \"value\": \"{{ $json.body.items[0].Name }}\" },\n            { \"title\": \"Endet am\", \"value\": \"{{ $json.body.items[0].EndetAm }}\" },\n            { \"title\": \"Tage übrig\", \"value\": \"{{ $json.body.items[0].TageRestlich }}\" }\n          ]}\n        ]\n      }\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "959a3642-6c02-4225-9eeb-aafb5734d568",
+      "name": "teams-alarm"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "teams-alarm",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "19bc719e-ee60-4825-b5b6-ec40a4ed6f61",
+  "meta": {
+    "instanceId": "f2472f18cf16748cba3ca8d616ca558f00d6485bd70d576f00cb6e05bf1507fd"
+  },
+  "nodeGroups": [],
+  "id": "KZnZW6Tz4KNxBIsT",
+  "tags": []
+}

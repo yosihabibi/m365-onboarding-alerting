@@ -1,0 +1,20 @@
+# Secrets / local config — never commit
+*.env
+.env
+secrets.*
+*.secret
+appsettings.local.*
+
+# PowerShell
+*.clixml
+
+# n8n local data / exports with embedded URLs
+.n8n/
+n8n-data/
+*.local.json
+
+# OS / editor
+Thumbs.db
+.DS_Store
+.vscode/
+*.log

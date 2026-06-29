@@ -1,0 +1,154 @@
+{
+  "name": "Onboarding",
+  "nodes": [
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.microsoft.com/v1.0/users/{{ $('benutzer anlegen').item.json.id }}/assignLicense",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"addLicenses\": [\n    { \"skuId\": \"f245ecc8-75af-4f8e-b61f-27d8114de5f3\" }\n  ],\n  \"removeLicenses\": []\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        624,
+        0
+      ],
+      "id": "f24f96e5-cd4a-41a3-a3c0-87b3f69b6354",
+      "name": "lizenz zuweisen",
+      "credentials": {
+        "oAuth2Api": {
+          "id": "rfOR0e0Ifk3ayEFK",
+          "name": "ms365"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.microsoft.com/v1.0/users",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"accountEnabled\": true,\n  \"displayName\": \"{{ $json.Vorname }} {{ $json.Nachname }}\",\n  \"mailNickname\": \"{{ $json.Vorname.toLowerCase() }}.{{ $json.Nachname.toLowerCase() }}\",\n  \"userPrincipalName\": \"{{ $json.Vorname.toLowerCase() }}.{{ $json.Nachname.toLowerCase() }}@yourtenant.onmicrosoft.com\",\n  \"usageLocation\": \"AT\",\n  \"passwordProfile\": {\n    \"forceChangePasswordNextSignIn\": true,\n    \"password\": \"ChangeMe!2026\"\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        416,
+        0
+      ],
+      "id": "76a484c6-833c-400a-9462-11735ab3ba31",
+      "name": "benutzer anlegen",
+      "credentials": {
+        "oAuth2Api": {
+          "id": "rfOR0e0Ifk3ayEFK",
+          "name": "ms365"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "<PASTE-YOUR-TEAMS-WORKFLOW-WEBHOOK-URL>",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"type\": \"message\",\n  \"attachments\": [\n    {\n      \"contentType\": \"application/vnd.microsoft.card.adaptive\",\n      \"content\": {\n        \"$schema\": \"http://adaptivecards.io/schemas/adaptive-card.json\",\n        \"type\": \"AdaptiveCard\",\n        \"version\": \"1.4\",\n        \"body\": [\n          { \"type\": \"TextBlock\", \"size\": \"Large\", \"weight\": \"Bolder\", \"text\": \"✅ Neues Onboarding\" },\n          { \"type\": \"TextBlock\", \"wrap\": true, \"text\": \"Benutzer **{{ $('benutzer anlegen').item.json.displayName }}** wurde angelegt und lizenziert.\" },\n          { \"type\": \"FactSet\", \"facts\": [\n            { \"title\": \"Anmeldung\", \"value\": \"{{ $('benutzer anlegen').item.json.userPrincipalName }}\" },\n            { \"title\": \"Lizenz\", \"value\": \"Microsoft 365 Business Standard\" }\n          ]}\n        ]\n      }\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        832,
+        0
+      ],
+      "id": "9c15808c-3874-4acf-b42f-d56f28d34cd4",
+      "name": "teams meldung"
+    },
+    {
+      "parameters": {
+        "formTitle": "Mitarbeiter-Onboarding",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Vorname",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Nachname",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Abteilung"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.6,
+      "position": [
+        160,
+        0
+      ],
+      "id": "9cfecfbc-dd77-4d31-a578-c9d1bb4acdce",
+      "name": "On form submission",
+      "webhookId": "67a0b0d8-517d-4e9c-bad7-0031d5a9f3b7"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "benutzer anlegen": {
+      "main": [
+        [
+          {
+            "node": "lizenz zuweisen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "lizenz zuweisen": {
+      "main": [
+        [
+          {
+            "node": "teams meldung",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "benutzer anlegen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "0103f017-33c3-49fe-878c-3f058ed8caac",
+  "meta": {
+    "instanceId": "f2472f18cf16748cba3ca8d616ca558f00d6485bd70d576f00cb6e05bf1507fd"
+  },
+  "nodeGroups": [],
+  "id": "vE3ON5pb3zS2IfPB",
+  "tags": []
+}
